@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <metadata>
-        <name>ZestHook</name>
+        <name>ZestHook (Workfor)</name>
         <type>plugin</type>
         <creationDate>2019-12-13</creationDate>
         <lastUpdate>2020-05-15</lastUpdate>
-        <author>Stefan Verweij | Evently</author>
+        <author>Stefan Verweij | Evently (modified by Vinay Kerai)</author>
         <authorUrl>https://www.evently.nl</authorUrl>
         <supportUrl>https://www.evently.nl</supportUrl>
         <version>1.1.0</version>

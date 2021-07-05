@@ -152,6 +152,16 @@ class ZestHook extends PluginBase
           'help' => 'Comma separated question codes of the answers you want to send along',
           'current' => $this->get('sAnswersToSend', 'Survey', $oEvent->get('survey'))
         ),
+        'bSendAllAnswers' => array(
+          'type' => 'select',
+          'label' => 'Send all answers',
+          'default' => 0,
+          'options' => array(
+            0 => 'No',
+            1 => 'Yes'
+          ),
+          'current' => $this->get('bSendAllAnswers', 'Survey', $oEvent->get('survey'))
+        ),
         'bRequestType' => array(
           'type' => 'select',
           'label' => 'Request Type',
@@ -235,13 +245,24 @@ class ZestHook extends PluginBase
 
       $parameters = json_decode($parameters, true);
     } else {
-      $parameters = array(
+      if ($bSendAllAnswers) {
+        $parameters = array(
+        "survey" => $this->surveyId,
+        "token" => (isset($sToken)) ? $sToken : null,
+        "api_token" => $auth,
+        "server_key" => $serverToken,
+        "additionalFields" => ($response) ? json_encode($response) : null
+        );
+      }
+      else {
+        $parameters = array(
         "survey" => $this->surveyId,
         "token" => (isset($sToken)) ? $sToken : null,
         "api_token" => $auth,
         "server_key" => $serverToken,
         "additionalFields" => ($additionalFields) ? json_encode($additionalAnswers) : null
-      );
+        );
+      }
     }
 
     if ($requestType == 1)
