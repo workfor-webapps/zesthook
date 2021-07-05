@@ -155,6 +155,7 @@ class ZestHook extends PluginBase
         'bSendAllAnswers' => array(
           'type' => 'select',
           'label' => 'Send all answers',
+          'help' => 'Set to Yes if you want to send all response values',
           'default' => 0,
           'options' => array(
             0 => 'No',
@@ -227,12 +228,13 @@ class ZestHook extends PluginBase
     $postSignature = $this->get('sPostSignature', 'Survey', $this->surveyId);
     $requestType = $this->get('bRequestType', 'Survey', $this->surveyId);
     $additionalFields = $this->getAdditionalFields();
+    $sendAllAnswers = $this->get('bSendAllAnswers', 'Survey', $this->surveyId);
 
-    if (($this->get('bSendToken', 'Survey', $this->surveyId) === '1') || (count($additionalFields) > 0)) {
+    if (($this->get('bSendToken', 'Survey', $this->surveyId) === '1') || (count($additionalFields) > 0) || ($sendAllAnswers)) {
       $responseId = $oEvent->get('responseId');
       $response = $this->api->getResponse($this->surveyId, $responseId);
       $sToken = $this->getTokenString($response);
-      $additionalAnswers = $this->getAdditionalAnswers($additionalFields, $response);
+      $additionalAnswers = $this->getAdditionalAnswers($additionalFields, $response, $sendAllAnswers);
     }
     if ($postSignature) {
       $mainFields = array("/{surveyId}/", "/{token}/", "/{apiToken}/", "/{serverKey}/", "/{additionalFields}/");
@@ -245,24 +247,13 @@ class ZestHook extends PluginBase
 
       $parameters = json_decode($parameters, true);
     } else {
-      if ($bSendAllAnswers) {
         $parameters = array(
         "survey" => $this->surveyId,
         "token" => (isset($sToken)) ? $sToken : null,
         "api_token" => $auth,
         "server_key" => $serverToken,
-        "additionalFields" => ($response) ? json_encode($response) : null
+        "additionalFields" => ($additionalAnswers) ? json_encode($additionalAnswers) : null
         );
-      }
-      else {
-        $parameters = array(
-        "survey" => $this->surveyId,
-        "token" => (isset($sToken)) ? $sToken : null,
-        "api_token" => $auth,
-        "server_key" => $serverToken,
-        "additionalFields" => ($additionalFields) ? json_encode($additionalAnswers) : null
-        );
-      }
     }
 
     if ($requestType == 1)
@@ -351,8 +342,16 @@ class ZestHook extends PluginBase
     return null;
   }
 
-  private function getAdditionalAnswers($additionalFields = null, $response)
-  {
+  private function getAdditionalAnswers($additionalFields = null, $response, $sendAllAnswers)
+  { 
+    if ($sendAllAnswers) {
+      $additionalAnswers = array();
+      foreach ($response as $field => $val) {
+        $additionalAnswers[$field] = htmlspecialchars($val);
+      }
+      return $additionalAnswers;
+    }
+
     if ($additionalFields) {
       $additionalAnswers = array();
       foreach ($additionalFields as $field) {
