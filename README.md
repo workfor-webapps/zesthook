@@ -21,3 +21,6 @@ PR's are welcome, but if it is for a new feature/big change please create an iss
 ## Usage
 
 You are free to use/change/fork this code for your own products, and I would be happy to hear how and what you are using it for!
+
+## Modification
+- Add option to Send all answers rather than specifying a long-comma separated list
